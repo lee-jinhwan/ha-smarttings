@@ -22,6 +22,7 @@
             "fan_only": "Fan only",
             "heat": "Heat",
             "heat_cool": "Heat/Cool",
+            "ai_comfort": "AI comfort",
             "off": "Off"
         }
     },

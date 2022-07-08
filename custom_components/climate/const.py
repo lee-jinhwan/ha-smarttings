@@ -30,6 +30,8 @@ class HVACMode(StrEnum):
     # Only the fan is on, not fan and another mode like cool
     FAN_ONLY = "fan_only"
 
+    AI_COMFORT = "ai_comfort"
+
 
 # These HVAC_MODE_* constants are deprecated as of Home Assistant 2022.5.
 # Please use the HVACMode enum instead.
@@ -40,6 +42,7 @@ HVAC_MODE_HEAT_COOL = "heat_cool"
 HVAC_MODE_AUTO = "auto"
 HVAC_MODE_DRY = "dry"
 HVAC_MODE_FAN_ONLY = "fan_only"
+HAVC_MODE_AI_COMFORT = "ai_comfort"
 HVAC_MODES = [cls.value for cls in HVACMode]
 
 # No preset is active

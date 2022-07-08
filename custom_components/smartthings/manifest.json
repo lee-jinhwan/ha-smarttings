@@ -1,6 +1,7 @@
 {
   "domain": "smartthings",
   "name": "SmartThings",
+  "version": "1.0.0",
   "config_flow": true,
   "documentation": "https://www.home-assistant.io/integrations/smartthings",
   "requirements": ["pysmartapp==0.3.3", "pysmartthings==0.7.6"],

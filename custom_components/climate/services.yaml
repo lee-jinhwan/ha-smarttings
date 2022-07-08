@@ -85,6 +85,8 @@ set_temperature:
               value: "heat_cool"
             - label: "Heat"
               value: "heat"
+            - label: "AI Comfort"
+              value: "ai_comfort"
 
 set_humidity:
   name: Set target humidity
@@ -145,6 +147,8 @@ set_hvac_mode:
               value: "heat_cool"
             - label: "Heat"
               value: "heat"
+            - label: "AI Comfort"
+              value: "ai_comfort"
 
 set_swing_mode:
   name: Set swing mode
