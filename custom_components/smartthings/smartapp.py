@@ -55,6 +55,7 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
+CAPABILITIES.extend(["custom.airConditionerOptionalMode", "fanOscillationMode"])
 
 def format_unique_id(app_id: str, location_id: str) -> str:
     """Format the unique id for a config entry."""

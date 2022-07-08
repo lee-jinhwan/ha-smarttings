@@ -4,6 +4,7 @@ from __future__ import annotations
 import asyncio
 from collections.abc import Iterable, Sequence
 import logging
+import voluptuous as vol
 
 from pysmartthings import Attribute, Capability
 
@@ -15,14 +16,28 @@ from custom_components.climate.const import (
     ClimateEntityFeature,
     HVACAction,
     HVACMode,
+    SWING_OFF,
+    SWING_BOTH,
+    SWING_VERTICAL,
+    SWING_HORIZONTAL,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_TEMPERATURE, TEMP_CELSIUS, TEMP_FAHRENHEIT
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.entity_platform import (
+    AddEntitiesCallback,
+    current_platform,
+)
 
 from . import SmartThingsEntity
-from .const import DATA_BROKERS, DOMAIN
+from .const import (
+    DATA_BROKERS,
+    DOMAIN,
+    ATTR_AC_OPTIONAL_MODE,
+    SERVICE_SET_AC_OPTIONAL_MODE,
+    AC_OPTIONAL_MODES,
+    SUPPORT_AC_OPTIONAL_MODE,
+)
 
 ATTR_OPERATION_STATE = "operation_state"
 MODE_TO_STATE = {
@@ -71,6 +86,20 @@ STATE_TO_AC_MODE = {
     HVACMode.AI_COMFORT: "aIComfort",
 }
 
+SWING_TO_STATE = {
+    "fixed": SWING_OFF,
+    "all": SWING_BOTH,
+    "vertical": SWING_VERTICAL,
+    "horizontal": SWING_HORIZONTAL,
+}
+
+STATE_TO_SWING = {
+    SWING_OFF: "fixed",
+    SWING_BOTH: "all",
+    SWING_VERTICAL: "vertical",
+    SWING_HORIZONTAL: "horizontal",
+}
+
 UNIT_MAP = {"C": TEMP_CELSIUS, "F": TEMP_FAHRENHEIT}
 
 _LOGGER = logging.getLogger(__name__)
@@ -101,6 +130,13 @@ async def async_setup_entry(
             entities.append(SmartThingsThermostat(device))
     async_add_entities(entities, True)
 
+    platform = current_platform.get()
+    platform.async_register_entity_service(
+        SERVICE_SET_AC_OPTIONAL_MODE,
+        {vol.Required(ATTR_AC_OPTIONAL_MODE): vol.In(AC_OPTIONAL_MODES)},
+        "async_set_ac_optional_mode",
+        [SUPPORT_AC_OPTIONAL_MODE],
+    )
 
 def get_capabilities(capabilities: Sequence[str]) -> Sequence[str] | None:
     """Return all capabilities supported if minimum required are present."""
@@ -320,7 +356,7 @@ class SmartThingsAirConditioner(SmartThingsEntity, ClimateEntity):
     """Define a SmartThings Air Conditioner."""
 
     _attr_supported_features = (
-        ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.FAN_MODE
+        ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.FAN_MODE | ClimateEntityFeature.SWING_MODE | SUPPORT_AC_OPTIONAL_MODE
     )
 
     def __init__(self, device):
@@ -374,6 +410,20 @@ class SmartThingsAirConditioner(SmartThingsEntity, ClimateEntity):
         # the entity state ahead of receiving the confirming push updates
         self.async_write_ha_state()
 
+    async def async_set_swing_mode(self, swing_mode: str) -> None:
+        """Set new target swing operation."""
+        mode = STATE_TO_SWING[swing_mode]
+        result = await self._device.command(
+            "main",
+            "fanOscillationMode",
+            "setFanOscillationMode",
+            [mode],
+        )
+        if result:
+            self._device.status.update_attribute_value("fanOscillationMode", mode)
+
+        self.async_write_ha_state()
+
     async def async_turn_on(self):
         """Turn device on."""
         await self._device.switch_on(set_status=True)
@@ -386,6 +436,13 @@ class SmartThingsAirConditioner(SmartThingsEntity, ClimateEntity):
         await self._device.switch_off(set_status=True)
         # State is set optimistically in the command above, therefore update
         # the entity state ahead of receiving the confirming push updates
+        self.async_write_ha_state()
+
+    async def async_set_ac_optional_mode(self, ac_optional_mode):
+        supported_ac_optional_mode = self._device.status.attributes["supportedAcOptionalMode"].value
+        if not (supported_ac_optional_mode and ac_optional_mode in supported_ac_optional_mode):
+            raise ValueError(f"Invalid mode [{ac_optional_mode}]")
+        await self._device.command("main", "custom.airConditionerOptionalMode", "setAcOptionalMode", [ac_optional_mode])
         self.async_write_ha_state()
 
     async def async_update(self):
@@ -427,6 +484,9 @@ class SmartThingsAirConditioner(SmartThingsEntity, ClimateEntity):
             value = getattr(self._device.status, attribute)
             if value is not None:
                 state_attributes[attribute] = value
+
+        state_attributes["ac_optional_mode"] = self._device.status.attributes["acOptionalMode"].value
+
         return state_attributes
 
     @property
@@ -460,3 +520,11 @@ class SmartThingsAirConditioner(SmartThingsEntity, ClimateEntity):
     def temperature_unit(self):
         """Return the unit of measurement."""
         return UNIT_MAP.get(self._device.status.attributes[Attribute.temperature].unit)
+
+    @property
+    def swing_modes(self) -> list[str] | None:
+        return list(STATE_TO_SWING)
+
+    @property
+    def swing_mode(self) -> str | None:
+        return SWING_TO_STATE.get(self._device.status.attributes["fanOscillationMode"].value)

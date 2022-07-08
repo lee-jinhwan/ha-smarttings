@@ -1,0 +1,29 @@
+set_ac_optional_mode:
+  name: Set AC Optional mode
+  description: Set AC optional mode for climate device.
+  target:
+    entity:
+      domain: climate
+      integration: smartthings
+  fields:
+    ac_optional_mode:
+      name: AC Optional mode
+      description: New value of AC optional mode.
+      required: true
+      selector:
+        select:
+          options:
+            - label: "Off"
+              value: "off"
+            - label: "Sleep"
+              value: "sleep"
+            - label: "Wind-Free"
+              value: "windFree"
+            - label: "Wind-Free Sleep"
+              value: "windFreeSleep"
+            - label: "Quiet"
+              value: "quiet"
+            - label: "Speed"
+              value: "speed"
+            - label: "Smart"
+              value: "smart"

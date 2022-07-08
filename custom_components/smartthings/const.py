@@ -55,3 +55,9 @@ TOKEN_REFRESH_INTERVAL = timedelta(days=14)
 
 VAL_UID = "^(?:([0-9a-fA-F]{32})|([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}))$"
 VAL_UID_MATCHER = re.compile(VAL_UID)
+
+ATTR_AC_OPTIONAL_MODE = "ac_optional_mode"
+SERVICE_SET_AC_OPTIONAL_MODE = "set_ac_optional_mode"
+AC_OPTIONAL_MODES = ["off","sleep","windFree","windFreeSleep","quiet","speed","smart"]
+
+SUPPORT_AC_OPTIONAL_MODE = 0b1_0000_0000_0000
