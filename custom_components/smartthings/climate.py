@@ -34,9 +34,23 @@ from .const import (
     DATA_BROKERS,
     DOMAIN,
     ATTR_AC_OPTIONAL_MODE,
+    ATTR_AUTO_CLEANING_MODE,
     SERVICE_SET_AC_OPTIONAL_MODE,
+    SERVICE_SET_AUTO_CLEANING_MODE,
     AC_OPTIONAL_MODES,
+    AUTO_CLEANING_MODES,
     SUPPORT_AC_OPTIONAL_MODE,
+    SUPPORT_AUTO_CLEANING_MODE,
+    ATTRIBUTE_FAN_OSCILLATION_MODE,
+    ATTRIBUTE_AC_OPTIONAL_MODE,
+    ATTRIBUTE_SUPPORTED_AC_OPTIONAL_MODE,
+    ATTRIBUTE_AUTO_CLEANING_MODE,
+    CAPABILITY_FAN_OSCILLATION_MODE,
+    CAPABILITY_AC_OPTIONAL_MODE,
+    CAPABILITY_AUTO_CLEANING_MODE,
+    COMMAND_FAN_OSCILLATION_MODE,
+    COMMAND_AC_OPTIONAL_MODE,
+    COMMAND_AUTO_CLEANING_MODE,
 )
 
 ATTR_OPERATION_STATE = "operation_state"
@@ -137,6 +151,15 @@ async def async_setup_entry(
         "async_set_ac_optional_mode",
         [SUPPORT_AC_OPTIONAL_MODE],
     )
+
+    platform = current_platform.get()
+    platform.async_register_entity_service(
+        SERVICE_SET_AUTO_CLEANING_MODE,
+        {vol.Required(ATTR_AUTO_CLEANING_MODE): vol.In(AUTO_CLEANING_MODES)},
+        "async_set_auto_cleaning_mode",
+        [SUPPORT_AUTO_CLEANING_MODE],
+    )
+
 
 def get_capabilities(capabilities: Sequence[str]) -> Sequence[str] | None:
     """Return all capabilities supported if minimum required are present."""
@@ -356,7 +379,7 @@ class SmartThingsAirConditioner(SmartThingsEntity, ClimateEntity):
     """Define a SmartThings Air Conditioner."""
 
     _attr_supported_features = (
-        ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.FAN_MODE | ClimateEntityFeature.SWING_MODE | SUPPORT_AC_OPTIONAL_MODE
+        ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.FAN_MODE | ClimateEntityFeature.SWING_MODE | SUPPORT_AC_OPTIONAL_MODE | SUPPORT_AUTO_CLEANING_MODE
     )
 
     def __init__(self, device):
@@ -410,20 +433,6 @@ class SmartThingsAirConditioner(SmartThingsEntity, ClimateEntity):
         # the entity state ahead of receiving the confirming push updates
         self.async_write_ha_state()
 
-    async def async_set_swing_mode(self, swing_mode: str) -> None:
-        """Set new target swing operation."""
-        mode = STATE_TO_SWING[swing_mode]
-        result = await self._device.command(
-            "main",
-            "fanOscillationMode",
-            "setFanOscillationMode",
-            [mode],
-        )
-        if result:
-            self._device.status.update_attribute_value("fanOscillationMode", mode)
-
-        self.async_write_ha_state()
-
     async def async_turn_on(self):
         """Turn device on."""
         await self._device.switch_on(set_status=True)
@@ -438,11 +447,22 @@ class SmartThingsAirConditioner(SmartThingsEntity, ClimateEntity):
         # the entity state ahead of receiving the confirming push updates
         self.async_write_ha_state()
 
-    async def async_set_ac_optional_mode(self, ac_optional_mode):
-        supported_ac_optional_mode = self._device.status.attributes["supportedAcOptionalMode"].value
+    async def async_set_swing_mode(self, swing_mode: str) -> None:
+        mode = STATE_TO_SWING[swing_mode]
+        result = await self._device.command("main", CAPABILITY_FAN_OSCILLATION_MODE, COMMAND_FAN_OSCILLATION_MODE, [mode])
+        if result:
+            self._device.status.update_attribute_value(ATTRIBUTE_FAN_OSCILLATION_MODE, mode)
+        self.async_write_ha_state()
+
+    async def async_set_ac_optional_mode(self, ac_optional_mode) -> None:
+        supported_ac_optional_mode = self._device.status.attributes[ATTRIBUTE_SUPPORTED_AC_OPTIONAL_MODE].value
         if not (supported_ac_optional_mode and ac_optional_mode in supported_ac_optional_mode):
             raise ValueError(f"Invalid mode [{ac_optional_mode}]")
-        await self._device.command("main", "custom.airConditionerOptionalMode", "setAcOptionalMode", [ac_optional_mode])
+        await self._device.command("main", CAPABILITY_AC_OPTIONAL_MODE, COMMAND_AC_OPTIONAL_MODE, [ac_optional_mode])
+        self.async_write_ha_state()
+
+    async def async_set_auto_cleaning_mode(self, auto_cleaning_mode) -> None:
+        await self._device.command("main", CAPABILITY_AUTO_CLEANING_MODE, COMMAND_AUTO_CLEANING_MODE, [auto_cleaning_mode])
         self.async_write_ha_state()
 
     async def async_update(self):
@@ -485,7 +505,8 @@ class SmartThingsAirConditioner(SmartThingsEntity, ClimateEntity):
             if value is not None:
                 state_attributes[attribute] = value
 
-        state_attributes["ac_optional_mode"] = self._device.status.attributes["acOptionalMode"].value
+        state_attributes[ATTR_AC_OPTIONAL_MODE] = self._device.status.attributes[ATTRIBUTE_AC_OPTIONAL_MODE].value
+        state_attributes[ATTR_AUTO_CLEANING_MODE] = self._device.status.attributes[ATTRIBUTE_AUTO_CLEANING_MODE].value
 
         return state_attributes
 

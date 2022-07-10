@@ -56,8 +56,27 @@ TOKEN_REFRESH_INTERVAL = timedelta(days=14)
 VAL_UID = "^(?:([0-9a-fA-F]{32})|([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}))$"
 VAL_UID_MATCHER = re.compile(VAL_UID)
 
-ATTR_AC_OPTIONAL_MODE = "ac_optional_mode"
-SERVICE_SET_AC_OPTIONAL_MODE = "set_ac_optional_mode"
-AC_OPTIONAL_MODES = ["off","sleep","windFree","windFreeSleep","quiet","speed","smart"]
+SUPPORT_AC_OPTIONAL_MODE    = 0b01_0000_0000_0000
+SUPPORT_AUTO_CLEANING_MODE  = 0b10_0000_0000_0000
 
-SUPPORT_AC_OPTIONAL_MODE = 0b1_0000_0000_0000
+ATTR_AC_OPTIONAL_MODE = "ac_optional_mode"
+ATTR_AUTO_CLEANING_MODE = "auto_cleaning_mode"
+
+SERVICE_SET_AC_OPTIONAL_MODE = "set_ac_optional_mode"
+SERVICE_SET_AUTO_CLEANING_MODE = "set_auto_cleaning_mode"
+
+AC_OPTIONAL_MODES = ["off","sleep","windFree","windFreeSleep","quiet","speed","smart"]
+AUTO_CLEANING_MODES = ["on", "speedClean", "quietClean", "off"]
+
+ATTRIBUTE_FAN_OSCILLATION_MODE = "fanOscillationMode"
+ATTRIBUTE_AC_OPTIONAL_MODE = "acOptionalMode"
+ATTRIBUTE_SUPPORTED_AC_OPTIONAL_MODE = "supportedAcOptionalMode"
+ATTRIBUTE_AUTO_CLEANING_MODE = "autoCleaningMode"
+
+CAPABILITY_FAN_OSCILLATION_MODE = "fanOscillationMode"
+CAPABILITY_AC_OPTIONAL_MODE = "custom.airConditionerOptionalMode"
+CAPABILITY_AUTO_CLEANING_MODE = "custom.autoCleaningMode"
+
+COMMAND_FAN_OSCILLATION_MODE = "setFanOscillationMode"
+COMMAND_AC_OPTIONAL_MODE = "setAcOptionalMode"
+COMMAND_AUTO_CLEANING_MODE = "setAutoCleaningMode"

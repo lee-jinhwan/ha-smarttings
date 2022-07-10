@@ -51,11 +51,14 @@ from .const import (
     STORAGE_KEY,
     STORAGE_VERSION,
     SUBSCRIPTION_WARNING_LIMIT,
+    CAPABILITY_FAN_OSCILLATION_MODE,
+    CAPABILITY_AC_OPTIONAL_MODE,
+    CAPABILITY_AUTO_CLEANING_MODE,
 )
 
 _LOGGER = logging.getLogger(__name__)
 
-CAPABILITIES.extend(["custom.airConditionerOptionalMode", "fanOscillationMode"])
+CAPABILITIES.extend([CAPABILITY_FAN_OSCILLATION_MODE, CAPABILITY_AC_OPTIONAL_MODE, CAPABILITY_AUTO_CLEANING_MODE])
 
 def format_unique_id(app_id: str, location_id: str) -> str:
     """Format the unique id for a config entry."""

@@ -27,3 +27,27 @@ set_ac_optional_mode:
               value: "speed"
             - label: "Smart"
               value: "smart"
+
+set_auto_cleaning_mode:
+  name: Set auto cleaning mode
+  description: Set auto cleaning mode for climate device.
+  target:
+    entity:
+      domain: climate
+      integration: smartthings
+  fields:
+    auto_cleaning_mode:
+      name: Auto cleaning mode
+      description: New value of auto cleaning mode.
+      required: true
+      selector:
+        select:
+          options:
+            - label: "On"
+              value: "on"
+            - label: "Off"
+              value: "off"
+            - label: "Speed Clean"
+              value: "speedClean"
+            - label: "Quiet Clean"
+              value: "quietClean"
