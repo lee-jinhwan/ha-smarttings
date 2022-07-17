@@ -1,0 +1,5 @@
+{
+  "name": "SmartThings - extension",
+  "homeassistant": "2022.7.0",
+  "render_readme": true
+}

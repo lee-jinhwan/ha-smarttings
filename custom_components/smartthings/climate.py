@@ -8,19 +8,28 @@ import voluptuous as vol
 
 from pysmartthings import Attribute, Capability
 
-from custom_components.climate import DOMAIN as CLIMATE_DOMAIN, ClimateEntity
-from custom_components.climate.const import (
+from homeassistant.components.climate import DOMAIN as CLIMATE_DOMAIN
+from homeassistant.components.climate.const import (
     ATTR_HVAC_MODE,
     ATTR_TARGET_TEMP_HIGH,
     ATTR_TARGET_TEMP_LOW,
     ClimateEntityFeature,
     HVACAction,
-    HVACMode,
     SWING_OFF,
     SWING_BOTH,
     SWING_VERTICAL,
     SWING_HORIZONTAL,
 )
+
+import sys
+
+if 'custom_components.climate' not in sys.modules:
+    from homeassistant.components.climate import ClimateEntity
+    from homeassistant.components.climate.const import HVACMode
+else:
+    from custom_components.climate import ClimateEntity
+    from custom_components.climate.const import HVACMode
+
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_TEMPERATURE, TEMP_CELSIUS, TEMP_FAHRENHEIT
 from homeassistant.core import HomeAssistant
@@ -89,7 +98,7 @@ AC_MODE_TO_STATE = {
     "heat": HVACMode.HEAT,
     "heatClean": HVACMode.HEAT,
     "wind": HVACMode.FAN_ONLY,
-    "aIComfort": HVACMode.AI_COMFORT,
+    "aIComfort": "ai_comfort",
 }
 STATE_TO_AC_MODE = {
     HVACMode.AUTO: "auto",
@@ -97,8 +106,12 @@ STATE_TO_AC_MODE = {
     HVACMode.DRY: "dry",
     HVACMode.HEAT: "heat",
     HVACMode.FAN_ONLY: "wind",
-    HVACMode.AI_COMFORT: "aIComfort",
+    "ai_comfort": "aIComfort",
 }
+
+if hasattr(HVACMode, 'AI_COMFORT'):
+    AC_MODE_TO_STATE.update({"aIComfort": HVACMode.AI_COMFORT})
+    STATE_TO_AC_MODE.update({HVACMode.AI_COMFORT: "aIComfort"})
 
 SWING_TO_STATE = {
     "fixed": SWING_OFF,
