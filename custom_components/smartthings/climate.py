@@ -98,7 +98,6 @@ AC_MODE_TO_STATE = {
     "heat": HVACMode.HEAT,
     "heatClean": HVACMode.HEAT,
     "wind": HVACMode.FAN_ONLY,
-    "aIComfort": "ai_comfort",
 }
 STATE_TO_AC_MODE = {
     HVACMode.AUTO: "auto",
@@ -106,7 +105,6 @@ STATE_TO_AC_MODE = {
     HVACMode.DRY: "dry",
     HVACMode.HEAT: "heat",
     HVACMode.FAN_ONLY: "wind",
-    "ai_comfort": "aIComfort",
 }
 
 if hasattr(HVACMode, 'AI_COMFORT'):
