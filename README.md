@@ -6,7 +6,7 @@
 Home Assistant core에서 Samsung SmartThings 부족한 기능들을 추가한 컴포넌트 입니다.
 
 ## 최소 지원 버전
-Home Assistant `2022.7.0` 이상
+Home Assistant `2022.8.0` 이상
 
 ## 설치
 ### HACS
