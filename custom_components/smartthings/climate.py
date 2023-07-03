@@ -4,8 +4,8 @@ from __future__ import annotations
 import asyncio
 from collections.abc import Iterable, Sequence
 import logging
-import voluptuous as vol
 from typing import Any
+import voluptuous as vol
 
 from pysmartthings import Attribute, Capability
 
@@ -14,7 +14,6 @@ from homeassistant.components.climate import (
     ATTR_TARGET_TEMP_HIGH,
     ATTR_TARGET_TEMP_LOW,
     DOMAIN as CLIMATE_DOMAIN,
-    ClimateEntity,
     ClimateEntityFeature,
     HVACAction,
     SWING_OFF,
@@ -33,7 +32,7 @@ else:
     from custom_components.climate.const import HVACMode
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import ATTR_TEMPERATURE, TEMP_CELSIUS, TEMP_FAHRENHEIT
+from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import (
     AddEntitiesCallback,
@@ -127,7 +126,7 @@ STATE_TO_SWING = {
     SWING_HORIZONTAL: "horizontal",
 }
 
-UNIT_MAP = {"C": TEMP_CELSIUS, "F": TEMP_FAHRENHEIT}
+UNIT_MAP = {"C": UnitOfTemperature.CELSIUS, "F": UnitOfTemperature.FAHRENHEIT}
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -308,7 +307,10 @@ class SmartThingsThermostat(SmartThingsEntity, ClimateEntity):
                     modes.add(state)
                 else:
                     _LOGGER.debug(
-                        "Device %s (%s) returned an invalid supported thermostat mode: %s",
+                        (
+                            "Device %s (%s) returned an invalid supported thermostat"
+                            " mode: %s"
+                        ),
                         self._device.label,
                         self._device.device_id,
                         mode,
@@ -500,8 +502,7 @@ class SmartThingsAirConditioner(SmartThingsEntity, ClimateEntity):
 
     @property
     def extra_state_attributes(self):
-        """
-        Return device specific state attributes.
+        """Return device specific state attributes.
 
         Include attributes from the Demand Response Load Control (drlc)
         and Power Consumption capabilities.
