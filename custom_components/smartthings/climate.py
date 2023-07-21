@@ -22,14 +22,13 @@ from homeassistant.components.climate import (
     SWING_HORIZONTAL,
 )
 
-import sys
-
-if 'custom_components.climate' not in sys.modules:
-    from homeassistant.components.climate import ClimateEntity
-    from homeassistant.components.climate.const import HVACMode
-else:
+try:
     from custom_components.climate import ClimateEntity
     from custom_components.climate.const import HVACMode
+except ImportError:
+    from homeassistant.components.climate import ClimateEntity
+    from homeassistant.components.climate.const import HVACMode
+
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
